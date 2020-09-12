@@ -25,24 +25,34 @@
 
 // export default firebase;
 
-import firebase from "firebase/app";
-import "firebase/storage";
-import "firebase/firestore";
+// import firebase from "firebase/app";
 
-export default connectDB = () => {
-  const firebaseConfig = {
-    apiKey: "AIzaSyCzsc6Eaq3m2IE1nAf8x5KkHGnx4X-DA6k",
-    // authDomain: process.env.authDomain,
-    databaseURL: "https://washu-scrape.firebaseio.com/",
-    projectId: "washu-scrape",
-    // storageBucket: process.env.storageBucket,
-    // messagingSenderId: process.env.messagingSenderId,
-    // appId: process.env.appId,
-  };
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCzsc6Eaq3m2IE1nAf8x5KkHGnx4X-DA6k",
+//   databaseURL: "https://washu-scrape.firebaseio.com/",
+//   projectId: "washu-scrape",
+// };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
+// if (!firebase.apps.length) {
+//   firebase.initializeApp(config);
+// }
 
-  return firebase;
-};
+// export default { firebase };
+
+// export default function connectDB() {
+//   const firebaseConfig = {
+//     apiKey: "AIzaSyCzsc6Eaq3m2IE1nAf8x5KkHGnx4X-DA6k",
+//     // authDomain: process.env.authDomain,
+//     databaseURL: "https://washu-scrape.firebaseio.com/",
+//     projectId: "washu-scrape",
+//     // storageBucket: process.env.storageBucket,
+//     // messagingSenderId: process.env.messagingSenderId,
+//     // appId: process.env.appId,
+//   };
+
+//   if (!firebase.apps.length) {
+//     firebase.initializeApp(firebaseConfig);
+//   }
+
+//   return firebase;
+// }
