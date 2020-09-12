@@ -89,10 +89,9 @@ class SearchElement extends React.Component {
                 </button>
                 {result["Sections"].map((section) => {
                   return (
-                    <div>
-                      <h2>{section["Time"]}</h2>
-                      <h3>{section["Days"]}</h3>
-                    </div>
+                    <p>
+                      {section["Time"]}: {section["Days"]}
+                    </p>
                   );
                 })}
               </div>
