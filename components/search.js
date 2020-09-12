@@ -19,7 +19,6 @@ class SearchElement extends React.Component {
     courseLoad[event.target.name] = this.state.bigData["artsci"][
       "AMERICAN CULTURE STUDIES(L98)"
     ][event.target.name];
-    console.log(courseLoad);
     this.setState({ courseLoad: courseLoad });
   };
 
