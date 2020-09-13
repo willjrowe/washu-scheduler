@@ -8,10 +8,12 @@ class SearchElement extends React.Component {
       message: "",
       bigData: require("../lib/washu-scrape-export.json"),
       courseLoad: {},
+      validLoad: [],
     };
     this.performSearch = this.performSearch.bind(this);
     this.addCourse = this.addCourse.bind(this);
     this.removeCourse = this.removeCourse.bind(this);
+    this.checkCourseLoad = this.checkCourseLoad.bind(this);
   }
 
   addCourse = (event) => {
@@ -19,14 +21,152 @@ class SearchElement extends React.Component {
     courseLoad[event.target.name] = this.state.bigData["artsci"][
       "AMERICAN CULTURE STUDIES(L98)"
     ][event.target.name];
-    this.setState({ courseLoad: courseLoad });
+    this.setState({ courseLoad: courseLoad }, this.checkCourseLoad); //add a callback function here to see if courseload is valid
   };
 
   removeCourse = (event) => {
     var { courseLoad } = this.state;
     delete courseLoad[event.target.name];
-    this.setState({ courseLoad: courseLoad });
+    this.setState({ courseLoad: courseLoad }, this.checkCourseLoad);
   };
+
+  //currLoad is an array of classes that are assumed non-colliding
+  //section is an additional class that must be checked for collisions
+  checkCourseAvail(currLoad, section) {
+    //get new section time
+    const sectionDays = section["Days"];
+    const sectionTime = section["Time"];
+    var sectionStart = new Date();
+    var sectionEnd = new Date();
+    var _t = sectionTime.split("-");
+    var _start = _t[0].split(":");
+    var _end = _t[1].split(":");
+    var startHour = _start[0].replace(/\D/g, "");
+    var startMin = _start[1].replace(/\D/g, "");
+    var endHour = _end[0].replace(/\D/g, "");
+    var endMin = _end[1].replace(/\D/g, "");
+    sectionStart.setHours(startHour, startMin, 0, 0);
+    sectionEnd.setHours(endHour, endMin, 0, 0);
+
+    //for each class in the currLoad
+    for (let i = 0; i < currLoad.length; i++) {
+      //compSection is the current section we are comparing the new section against
+      var compSection = currLoad[i];
+      var compSectionDays = compSection["Days"];
+      var matchingDay = false;
+
+      //check if any days collide
+      for (let j = 0; j < compSectionDays.length; j++) {
+        if (sectionDays[j] == compSectionDays[j] && compSectionDays[j] != "-") {
+          matchingDay = true;
+          break;
+        }
+      }
+
+      //only need to check times if dates collide (by dates I mean days of week)
+      if (matchingDay) {
+        //get compared section time
+        var compSectionTime = compSection["Time"];
+        var compSectionStart = new Date();
+        var compSectionEnd = new Date();
+        var comp_t = compSectionTime.split("-");
+        var comp_start = comp_t[0].split(":");
+        var comp_end = comp_t[1].split(":");
+        var compStartHour = comp_start[0].replace(/\D/g, "");
+        var compStartMin = comp_start[1].replace(/\D/g, "");
+        var compEndHour = comp_end[0].replace(/\D/g, "");
+        var compEndMin = comp_end[1].replace(/\D/g, "");
+        compSectionStart.setHours(compStartHour, compStartMin, 0, 0);
+        compSectionEnd.setHours(compEndHour, compEndMin, 0, 0);
+
+        //still not sure if these conditionals are correct but seem stable for now
+        //check if times collide
+        if (
+          compSectionStart <= sectionStart &&
+          sectionStart <= compSectionEnd
+        ) {
+          return false;
+        }
+        if (
+          sectionStart <= compSectionStart &&
+          compSectionStart <= sectionEnd
+        ) {
+          return false;
+        }
+        //you have two two sections to compare each has their own start and finish time
+        //does class2 start before class1 ends? BAD
+        //does class2 start after class1 ends? GOOD
+        //does class1 start before class2 ends? BAD
+        //does class1 start after class2 ends? GOOD
+      }
+    }
+    return true;
+  }
+
+  checkCourseLoad() {
+    console.log("FUNCTION CALLED FREAK OUT");
+
+    const { courseLoad } = this.state;
+    const courseLoadLength = Object.keys(courseLoad).length;
+    //store initialValidload
+    var BESTvalidLoad = [];
+    console.log("THIS SHOULD BE EMPTY");
+    console.log(BESTvalidLoad);
+    //used to replace valid load once updated version is calculated
+    var newValidLoad = [];
+    console.log(BESTvalidLoad);
+    //as long as there are classes to investigate
+    if (courseLoadLength != 0) {
+      console.log(BESTvalidLoad);
+      //for each course in courseLoad
+      for (let w = 0; w < courseLoadLength; w++) {
+        console.log(BESTvalidLoad);
+        console.log("class loop");
+
+        //current Course
+        const currClassName = Object.keys(courseLoad)[w];
+        const currClassObject = courseLoad[currClassName];
+
+        //if validLoad has already been initialized
+        if (BESTvalidLoad.length) {
+          console.log(BESTvalidLoad);
+          //for each option in validLoad
+          for (let j = 0; j < BESTvalidLoad.length; j++) {
+            //for each section in the current class to be added try to add to current load
+            for (let k = 0; k < currClassObject["Sections"].length; k++) {
+              //the current combo we're looking at
+              var currLoad = BESTvalidLoad[j];
+              console.log(currLoad);
+              if (
+                this.checkCourseAvail(currLoad, currClassObject["Sections"][k])
+              ) {
+                //if there are no collisions add section to current load
+
+                currLoad.push(currClassObject["Sections"][k]);
+                newValidLoad.push(currLoad);
+              }
+            }
+          }
+          //after newValid is calculated with this class update
+          //in theory there shouldnt really be this many loops because you should only be adding one class at a time but this should still be stable
+          BESTvalidLoad = newValidLoad;
+        }
+
+        //if validLoad is empty we can just add every section of the first course
+        else {
+          //for each section in the current Class
+          for (let i = 0; i < currClassObject["Sections"].length; i++) {
+            //each section should be in its own array to represent a prospective course combo
+            var newLoad = [];
+            newLoad.push(currClassObject["Sections"][i]);
+            BESTvalidLoad.push(newLoad);
+          }
+        }
+      }
+    }
+    console.log(BESTvalidLoad);
+    this.setState({ validLoad: BESTvalidLoad });
+  }
 
   handleOnInputChange = (event) => {
     const query = event.target.value;
@@ -73,6 +213,18 @@ class SearchElement extends React.Component {
     }
   };
 
+  renderValidLoad = () => {
+    const { validLoad } = this.state;
+    return (
+      <div>
+        <p>
+          There are {validLoad.length} different course combinations for the
+          currently selected schedule!
+        </p>
+      </div>
+    );
+  };
+
   renderSearchResults = () => {
     const { results } = this.state;
     if (results.length) {
@@ -115,6 +267,7 @@ class SearchElement extends React.Component {
         {this.renderSearchResults()}
         <h1>Current Courses Selected</h1>
         {this.renderCourseLoad()}
+        {this.renderValidLoad()}
       </div>
     );
   }
