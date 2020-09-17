@@ -104,68 +104,35 @@ class SearchElement extends React.Component {
   }
 
   checkCourseLoad() {
-    console.log("FUNCTION CALLED FREAK OUT");
-
     const { courseLoad } = this.state;
     const courseLoadLength = Object.keys(courseLoad).length;
-    //store initialValidload
-    var BESTvalidLoad = [];
-    console.log("THIS SHOULD BE EMPTY");
-    console.log(BESTvalidLoad);
-    //used to replace valid load once updated version is calculated
-    var newValidLoad = [];
-    console.log(BESTvalidLoad);
-    //as long as there are classes to investigate
-    if (courseLoadLength != 0) {
-      console.log(BESTvalidLoad);
-      //for each course in courseLoad
-      for (let w = 0; w < courseLoadLength; w++) {
-        console.log(BESTvalidLoad);
-        console.log("class loop");
-
-        //current Course
-        const currClassName = Object.keys(courseLoad)[w];
-        const currClassObject = courseLoad[currClassName];
-
-        //if validLoad has already been initialized
-        if (BESTvalidLoad.length) {
-          console.log(BESTvalidLoad);
-          //for each option in validLoad
-          for (let j = 0; j < BESTvalidLoad.length; j++) {
-            //for each section in the current class to be added try to add to current load
-            for (let k = 0; k < currClassObject["Sections"].length; k++) {
-              //the current combo we're looking at
-              var currLoad = BESTvalidLoad[j];
-              console.log(currLoad);
-              if (
-                this.checkCourseAvail(currLoad, currClassObject["Sections"][k])
-              ) {
-                //if there are no collisions add section to current load
-
-                currLoad.push(currClassObject["Sections"][k]);
-                newValidLoad.push(currLoad);
-              }
-            }
-          }
-          //after newValid is calculated with this class update
-          //in theory there shouldnt really be this many loops because you should only be adding one class at a time but this should still be stable
-          BESTvalidLoad = newValidLoad;
-        }
-
-        //if validLoad is empty we can just add every section of the first course
-        else {
-          //for each section in the current Class
-          for (let i = 0; i < currClassObject["Sections"].length; i++) {
-            //each section should be in its own array to represent a prospective course combo
-            var newLoad = [];
-            newLoad.push(currClassObject["Sections"][i]);
-            BESTvalidLoad.push(newLoad);
+    var initValidLoad = new Array();
+    //initialize valid load with just the first class
+    if (initValidLoad.length == 0) {
+      var firstCourseName = Object.keys(courseLoad)[0];
+      var firstCourseSections = courseLoad[firstCourseName]["Sections"];
+      for (let j = 0; j < firstCourseSections.length; j++) {
+        var newPossibility = [];
+        newPossibility.push(firstCourseSections[j]);
+        initValidLoad.push(newPossibility);
+      }
+    }
+    for (let i = 1; i < courseLoadLength; i++) {
+      var currClassName = Object.keys(courseLoad)[i];
+      var currClassSections = courseLoad[currClassName]["Sections"];
+      var newLoad = [];
+      for (let k = 0; k < currClassSections.length; k++) {
+        for (let m = 0; m < initValidLoad.length; m++) {
+          var loadHolder = initValidLoad[m].slice(0);
+          if (this.checkCourseAvail(loadHolder, currClassSections[k])) {
+            loadHolder.push(currClassSections[k]);
+            newLoad.push(loadHolder);
           }
         }
       }
+      initValidLoad = newLoad;
     }
-    console.log(BESTvalidLoad);
-    this.setState({ validLoad: BESTvalidLoad });
+    this.setState({ validLoad: initValidLoad });
   }
 
   handleOnInputChange = (event) => {
