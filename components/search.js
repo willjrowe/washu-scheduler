@@ -18,16 +18,23 @@ class SearchElement extends React.Component {
 
   addCourse = (event) => {
     var { courseLoad } = this.state;
-    courseLoad[event.target.name] = this.state.bigData["artsci"][
-      "AMERICAN CULTURE STUDIES(L98)"
-    ][event.target.name];
-    this.setState({ courseLoad: courseLoad }, this.checkCourseLoad); //add a callback function here to see if courseload is valid
+    var { bigData } = this.state;
+    var courseName = event.target.name;
+    var splitArray = courseName.split(" ");
+    var cleanName = splitArray[splitArray.length - 1];
+    cleanName = cleanName.replace(/[A-Za-z]/, "");
+    var mappingObject = bigData["mappings"][cleanName][courseName];
+    courseLoad[courseName] =
+      bigData[mappingObject["School Division"]][mappingObject["Department"]][
+        courseName
+      ];
+    this.setState({ courseLoad }, this.checkCourseLoad); //add a callback function here to see if courseload is valid
   };
 
   removeCourse = (event) => {
     var { courseLoad } = this.state;
     delete courseLoad[event.target.name];
-    this.setState({ courseLoad: courseLoad }, this.checkCourseLoad);
+    this.setState({ courseLoad }, this.checkCourseLoad);
   };
 
   //currLoad is an array of classes that are assumed non-colliding
@@ -146,14 +153,31 @@ class SearchElement extends React.Component {
 
   performSearch() {
     var results = [];
+    // if (this.state.query != "") {
+    //   results.push(
+    //     this.state.bigData["artsci"]["AMERICAN CULTURE STUDIES(L98)"][
+    //       this.state.query
+    //     ]
+    //   );
+    // }
+    const { query } = this.state;
+    const { bigData } = this.state;
     if (this.state.query != "") {
-      results.push(
-        this.state.bigData["artsci"]["AMERICAN CULTURE STUDIES(L98)"][
-          this.state.query
-        ]
-      );
+      if (bigData["mappings"][query] != null) {
+        const mappingDir = bigData["mappings"][query];
+        const mappingDirLength = Object.keys(mappingDir).length;
+        for (let i = 0; i < mappingDirLength; i++) {
+          var currClassName = Object.keys(mappingDir)[i];
+          var currMapping = bigData["mappings"][query][currClassName];
+          var currClassObject =
+            bigData[currMapping["School Division"]][currMapping["Department"]][
+              currMapping["Course Number"]
+            ];
+          results.push(currClassObject);
+        }
+      }
     }
-    this.setState({ results: results });
+    this.setState({ results });
   }
 
   renderCourseLoad = () => {
@@ -200,19 +224,21 @@ class SearchElement extends React.Component {
           {results.map((result) => {
             return (
               <div>
-                <h1>{result["Course Name"]}</h1>
+                <h1>
+                  {result["Course Number"]}: {result["Course Name"]}
+                </h1>
                 {/* will need to pass more info up from button to correctly identify classs
                 can we pass whole object???? */}
                 <button name={result["Course Number"]} onClick={this.addCourse}>
                   Add course
                 </button>
-                {result["Sections"].map((section) => {
+                {/* {result["Sections"].map((section) => {
                   return (
                     <p>
                       {section["Time"]}: {section["Days"]}
                     </p>
                   );
-                })}
+                })} */}
               </div>
             );
           })}
