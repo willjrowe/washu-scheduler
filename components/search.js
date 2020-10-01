@@ -115,7 +115,7 @@ class SearchElement extends React.Component {
     const courseLoadLength = Object.keys(courseLoad).length;
     var initValidLoad = new Array();
     //initialize valid load with just the first class
-    if (initValidLoad.length == 0) {
+    if (initValidLoad.length == 0 && courseLoadLength > 0) {
       var firstCourseName = Object.keys(courseLoad)[0];
       var firstCourseSections = courseLoad[firstCourseName]["Sections"];
       for (let j = 0; j < firstCourseSections.length; j++) {
