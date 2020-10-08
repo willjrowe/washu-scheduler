@@ -35,3 +35,6 @@ yarn-error.log*
 
 # firebase stuff
 /washu-scrape-firebase-adminsdk-3gwdq-c0bc283f47.json
+
+#package-lock I know i shouldnt be mixing yarn and npm but im lazy
+package-lock.json

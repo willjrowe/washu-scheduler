@@ -250,6 +250,14 @@ class SearchElement extends React.Component {
   render() {
     return (
       <div>
+      <div class="row">
+{this.renderSearchResults()}
+        <h1>Current Courses Selected</h1>
+        {this.renderCourseLoad()}
+        {this.renderValidLoad()}
+      </div>
+      <div class="row">
+        <div class="col-4">
         <input
           type="text"
           id="search-input"
@@ -257,10 +265,8 @@ class SearchElement extends React.Component {
           onChange={this.handleOnInputChange}
         />
         <button onClick={this.performSearch}>Search by title</button>
-        {this.renderSearchResults()}
-        <h1>Current Courses Selected</h1>
-        {this.renderCourseLoad()}
-        {this.renderValidLoad()}
+        </div>
+      </div>
       </div>
     );
   }

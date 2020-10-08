@@ -4,6 +4,7 @@ import utilStyles from "../styles/utils.module.css";
 import bigData2 from "../lib/washu-scrape-export.json";
 import Search from "../components/search";
 
+
 export default function Home() {
   return (
     <Layout home>
